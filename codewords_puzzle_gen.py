@@ -24,10 +24,10 @@ def generate_codewords_puzzle(word_list, grid_size):
         place_word(word.upper())
 
     # Assign numbers to letters
-    letters = list(set(c for row in grid for c in row if c != ' '))
-    letter_to_number = {letter: str(i + 1) for i, letter in enumerate(sorted(letters))}
+    letters = sorted(set(c for row in grid for c in row if c != ' '))
+    letter_to_number = {letter: str(index + 1) for index, letter in enumerate(letters)}
 
-    # Create coded grid with numbers
-    coded_grid = [[letter_to_number.get(grid[r][c], ' ') if grid[r][c] != ' ' else '■' for c in range(grid_size)] for r in range(grid_size)]
+    # Create coded grid with numbers and fill empty spaces with black squares
+    coded_grid = [[letter_to_number.get(grid[r][c], '#') if grid[r][c] != ' ' else '#' for c in range(grid_size)] for r in range(grid_size)]
 
     return coded_grid, grid
