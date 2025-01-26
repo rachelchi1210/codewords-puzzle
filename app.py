@@ -1,9 +1,9 @@
 import streamlit as st
-from codewords_puzzle_gen import get_random_words, generate_codewords_puzzle
+from codewords_puzzle_gen import generate_codewords_puzzle, get_random_words
 
 st.title("KDP A-Z Codeword Maker")
 
-# Initialize session state
+# Session state initialization
 if 'puzzle_generated' not in st.session_state:
     st.session_state['puzzle_generated'] = False
 if 'coded_grid' not in st.session_state:
@@ -14,56 +14,45 @@ if 'letter_to_number' not in st.session_state:
     st.session_state['letter_to_number'] = None
 if 'show_solution' not in st.session_state:
     st.session_state['show_solution'] = False
+if 'current_grid_size' not in st.session_state:
+    st.session_state['current_grid_size'] = 10
 if 'current_word_input' not in st.session_state:
     st.session_state['current_word_input'] = ""
 
-# Grid size input
-grid_size = st.number_input("Grid Size (6-20):", min_value=6, max_value=20, value=10)
-word_count = st.number_input("Number of Words:", min_value=1, max_value=20, value=10)
+# Input for grid size and words
+grid_size = st.number_input("Grid Size (6-20):", min_value=6, max_value=20, value=st.session_state['current_grid_size'])
+word_count = st.number_input("Number of Words:", min_value=1, max_value=grid_size, value=10)
 
-# Button to generate random words
+# Generate random words button
 if st.button("Generate Random Words"):
-    word_count = st.session_state.get('word_count', 10)  # Default to 10 words if not set
-
-    # Get the exact number of words based on selection
     random_words = get_random_words(word_count)
-
-    # Trim the list to match the exact requested count
-    selected_words = random_words[:word_count]
-
-    # Convert the list to a formatted string
-    formatted_words = ", ".join(selected_words)
-
-    # Save in session state with the correct number of words
-    st.session_state['current_word_input'] = formatted_words
-
+    selected_words = random_words[:word_count]  # Ensuring only the requested number of words
+    st.session_state['current_word_input'] = ", ".join(selected_words)
     st.rerun()
 
-# Display the word list correctly
-if 'current_word_input' in st.session_state and st.session_state['current_word_input']:
-    st.subheader("Word List")
-    st.write(st.session_state['current_word_input'].split(", "))
+# Word input section
+word_input = st.text_area("Enter words (comma separated):", value=st.session_state['current_word_input'])
 
-
-
-
-word_input = st.text_area("Enter words (comma separated):", value=st.session_state.get('current_word_input', ""))
-
-# Generate puzzle
+# Buttons for generating puzzle
 if st.button("Generate Puzzle"):
     word_list = [word.strip().upper() for word in word_input.split(",") if word.strip()]
-    if word_list:
-        coded_grid, solution_grid, letter_to_number = generate_codewords_puzzle(word_list, grid_size)
-        st.session_state['coded_grid'] = coded_grid
-        st.session_state['solution_grid'] = solution_grid
-        st.session_state['letter_to_number'] = letter_to_number
-        st.session_state['puzzle_generated'] = True
+    coded_grid, solution_grid, letter_to_number = generate_codewords_puzzle(word_list, grid_size)
+    st.session_state['coded_grid'] = coded_grid
+    st.session_state['solution_grid'] = solution_grid
+    st.session_state['letter_to_number'] = letter_to_number
+    st.session_state['puzzle_generated'] = True
+    st.session_state['current_grid_size'] = grid_size
+    st.session_state['current_word_input'] = word_input
+
+st.subheader("Word List")
+if 'current_word_input' in st.session_state and st.session_state['current_word_input']:
+    st.write(st.session_state['current_word_input'])
 
 col1, col2 = st.columns([1, 2])
 
 with col1:
     st.subheader("Word List")
-    st.write(word_input.split(","))
+    st.write(st.session_state['current_word_input'].split(", "))
 
 with col2:
     st.subheader("Generated Puzzle")
@@ -107,7 +96,7 @@ with col2:
         puzzle_html += "</table>"
         st.markdown(puzzle_html, unsafe_allow_html=True)
 
-# Buttons for toggling solution visibility and reset
+# Buttons for toggling solution visibility
 col1, col2, col3 = st.columns(3)
 with col1:
     if st.button("Show Solution"):
@@ -122,5 +111,3 @@ with col3:
         for key in list(st.session_state.keys()):
             del st.session_state[key]
         st.rerun()
-
-
