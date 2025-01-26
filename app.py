@@ -1,8 +1,5 @@
 import streamlit as st
 from codewords_puzzle_gen import generate_codewords_puzzle
-from io import BytesIO
-import pandas as pd
-import matplotlib.pyplot as plt
 
 st.title("Codeword Maker")
 
@@ -49,25 +46,44 @@ with col1:
 with col2:
     st.subheader("Generated Puzzle")
     if st.session_state['coded_grid']:
-        fig, ax = plt.subplots()
-        ax.axis('off')
-        table_data = st.session_state['coded_grid']
-        table = ax.table(cellText=table_data, loc='center', cellLoc='center')
-        plt.savefig("puzzle.png")
-        st.pyplot(fig)
+        puzzle_html = """
+        <style>
+            table { border-collapse: collapse; }
+            td { 
+                border: 1px solid black; 
+                width: 40px; 
+                height: 40px; 
+                text-align: center; 
+                position: relative; 
+                font-size: 20px;
+            }
+            td.black { background-color: black; }
+            .sup { 
+                font-size: 12px; 
+                position: absolute; 
+                top: 2px; 
+                right: 5px; 
+                color: grey; 
+            }
+            .hidden { color: transparent; }
+        </style>
+        <table>
+        """
 
-        # Export to PNG button
-        buf = BytesIO()
-        plt.savefig(buf, format='png')
-        buf.seek(0)
-        st.download_button("Download as PNG", buf, file_name="puzzle.png", mime="image/png")
+        for row in st.session_state['coded_grid']:
+            puzzle_html += "<tr>"
+            for cell in row:
+                if cell == '#':
+                    puzzle_html += "<td class='black'></td>"
+                else:
+                    letter, number = cell.split("<sup>")
+                    number = number.replace("</sup>", "")
+                    letter_class = "hidden" if not st.session_state['show_solution'] else ""
+                    puzzle_html += f"<td><span class='sup'>{number}</span><span class='{letter_class}'>{letter}</span></td>"
+            puzzle_html += "</tr>"
 
-        # Export to PDF button
-        pdf_buffer = BytesIO()
-        df = pd.DataFrame(table_data)
-        df.to_csv(pdf_buffer, index=False)
-        pdf_buffer.seek(0)
-        st.download_button("Download as PDF", pdf_buffer, file_name="puzzle.pdf", mime="application/pdf")
+        puzzle_html += "</table>"
+        st.markdown(puzzle_html, unsafe_allow_html=True)
 
 # Buttons for toggling solution visibility
 col1, col2, col3 = st.columns(3)
