@@ -1,27 +1,33 @@
 import streamlit as st
-from codewords_puzzle_gen import generate_codewords_puzzle  # Import the puzzle generator function
+from codewords_puzzle_gen import generate_codewords_puzzle  # Import puzzle generator function
 
-st.title("Codewords Puzzle Generator")
+st.title("Codeword Puzzle Generator")
 
-# User input for words and grid size
+# Input for grid size and words
+grid_size = st.number_input("Grid Size (10-20):", min_value=10, max_value=20, value=10)
 word_input = st.text_area("Enter words (comma separated):")
-grid_size = st.slider("Select grid size", 5, 15, 8)
 
-if st.button("Generate Puzzle"):
+if word_input:
     word_list = [word.strip().upper() for word in word_input.split(",") if word.strip()]
-    if not word_list:
-        st.error("Please enter at least one word.")
-    else:
-        coded_grid, hints, _, _ = generate_codewords_puzzle(word_list, grid_size)
+    coded_grid, original_grid = generate_codewords_puzzle(word_list, grid_size)
+    
+    # Checkbox to toggle word visibility
+    hide_words = st.checkbox("Hide Words")
+    display_grid = [['■' if hide_words and cell != ' ' else cell for cell in row] for row in original_grid]
 
-        st.subheader("Coded Grid:")
-        for row in coded_grid:
-            st.text(" ".join(row))
+    st.subheader("Generated Puzzle")
+    for row in display_grid:
+        st.text(" ".join(row))
 
-        st.subheader("Hints:")
-        for letter, number in hints.items():
-            st.text(f"{letter} = {number}")
+# Buttons to manually show/hide words
+col1, col2 = st.columns(2)
+with col1:
+    if st.button("Show Words"):
+        st.session_state['hide_words'] = False
+        st.experimental_rerun()
 
-        st.subheader("Solution:")
-        for row in _:
-            st.text(" ".join(row))
+with col2:
+    if st.button("Hide Words"):
+        st.session_state['hide_words'] = True
+        st.experimental_rerun()
+
