@@ -23,8 +23,8 @@ if 'current_word_input' not in st.session_state:
 grid_size = st.number_input("Grid Size (10-20):", min_value=10, max_value=20, value=st.session_state['current_grid_size'])
 word_input = st.text_area("Enter words (comma separated):", value=st.session_state['current_word_input'])
 
-# Generate puzzle if inputs change
-if word_input and (word_input != st.session_state['current_word_input'] or grid_size != st.session_state['current_grid_size']):
+# Buttons for generating puzzle
+if st.button("Generate Puzzle"):
     word_list = [word.strip().upper() for word in word_input.split(",") if word.strip()]
     coded_grid, solution_grid, letter_to_number = generate_codewords_puzzle(word_list, grid_size)
     st.session_state['coded_grid'] = coded_grid
@@ -97,3 +97,4 @@ with col3:
         for key in list(st.session_state.keys()):
             del st.session_state[key]
         st.rerun()
+
