@@ -22,22 +22,21 @@ def generate_codewords_puzzle(word_list, grid_size):
         return True
 
     def place_word(word):
-        """Try placing a word randomly in the grid."""
+        """Try to place the word in all possible positions before giving up."""
         directions = ["H", "V"]
-        random.shuffle(directions)
-        attempts = 500  # Increased attempts to improve word placement
-        while attempts > 0:
-            direction = random.choice(directions)
-            row = random.randint(0, grid_size - 1)
-            col = random.randint(0, grid_size - 1)
-            if can_place_word(word, row, col, direction):
-                for i in range(len(word)):
-                    if direction == "H":
-                        grid[row][col + i] = word[i]
-                    else:
-                        grid[row + i][col] = word[i]
-                return True
-            attempts -= 1
+        positions = [(r, c) for r in range(grid_size) for c in range(grid_size)]
+        random.shuffle(positions)  # Randomize starting positions
+        random.shuffle(directions)  # Randomize directions
+        
+        for row, col in positions:
+            for direction in directions:
+                if can_place_word(word, row, col, direction):
+                    for i in range(len(word)):
+                        if direction == "H":
+                            grid[row][col + i] = word[i]
+                        else:
+                            grid[row + i][col] = word[i]
+                    return True
         return False
 
     placed_words = []
@@ -45,9 +44,9 @@ def generate_codewords_puzzle(word_list, grid_size):
         if place_word(word):
             placed_words.append(word)
 
-    # Check if any words were placed
-    if not placed_words:
-        return None  # Return None if no words could be placed
+    # Ensure at least the requested number of words are placed
+    if len(placed_words) < len(word_list):
+        print(f"Warning: Could not place all words. Placed {len(placed_words)} out of {len(word_list)}")
 
     # Generate a random number-letter mapping
     alphabet = list(string.ascii_uppercase)
