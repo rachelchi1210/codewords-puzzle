@@ -3,11 +3,7 @@ from codewords_puzzle_gen import generate_codewords_puzzle
 
 st.title("KDP A-Z Codeword Maker")
 
-# Input for grid size and words
-grid_size = st.number_input("Grid Size (10-20):", min_value=10, max_value=20, value=10)
-word_input = st.text_area("Enter words (comma separated):")
-
-# Session state for storing the generated puzzle
+# Session state initialization
 if 'puzzle_generated' not in st.session_state:
     st.session_state['puzzle_generated'] = False
 if 'coded_grid' not in st.session_state:
@@ -18,14 +14,25 @@ if 'letter_to_number' not in st.session_state:
     st.session_state['letter_to_number'] = None
 if 'show_solution' not in st.session_state:
     st.session_state['show_solution'] = False
+if 'current_grid_size' not in st.session_state:
+    st.session_state['current_grid_size'] = 10
+if 'current_word_input' not in st.session_state:
+    st.session_state['current_word_input'] = ""
 
-if word_input and not st.session_state['puzzle_generated']:
+# Input for grid size and words
+grid_size = st.number_input("Grid Size (10-20):", min_value=10, max_value=20, value=st.session_state['current_grid_size'])
+word_input = st.text_area("Enter words (comma separated):", value=st.session_state['current_word_input'])
+
+# Generate puzzle if inputs change
+if word_input and (word_input != st.session_state['current_word_input'] or grid_size != st.session_state['current_grid_size']):
     word_list = [word.strip().upper() for word in word_input.split(",") if word.strip()]
     coded_grid, solution_grid, letter_to_number = generate_codewords_puzzle(word_list, grid_size)
     st.session_state['coded_grid'] = coded_grid
     st.session_state['solution_grid'] = solution_grid
     st.session_state['letter_to_number'] = letter_to_number
     st.session_state['puzzle_generated'] = True
+    st.session_state['current_grid_size'] = grid_size
+    st.session_state['current_word_input'] = word_input
 
 col1, col2 = st.columns([1, 2])
 
@@ -76,7 +83,7 @@ with col2:
         st.markdown(puzzle_html, unsafe_allow_html=True)
 
 # Buttons for toggling solution visibility
-col1, col2 = st.columns(2)
+col1, col2, col3 = st.columns(3)
 with col1:
     if st.button("Show Solution"):
         st.session_state['show_solution'] = True
@@ -85,4 +92,8 @@ with col2:
     if st.button("Hide Solution"):
         st.session_state['show_solution'] = False
         st.rerun()
-
+with col3:
+    if st.button("Reset"):
+        for key in list(st.session_state.keys()):
+            del st.session_state[key]
+        st.rerun()
