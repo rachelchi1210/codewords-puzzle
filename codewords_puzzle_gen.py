@@ -4,6 +4,8 @@ import random
 
 import random
 
+import random
+
 def load_words_from_file(filename="kids_combined_word_list.txt"):
     try:
         with open(filename, "r") as file:
@@ -18,11 +20,9 @@ def get_random_words(count):
     # Remove duplicates and empty words
     unique_words = list(set(filter(None, words)))
 
-    # Return exactly 'count' number of words
-    if len(unique_words) >= count:
-        return random.sample(unique_words, count)
-    else:
-        return unique_words  # If not enough words, return all available
+    # Ensure count does not exceed available words
+    return random.sample(unique_words, min(count, len(unique_words)))
+
 
 def generate_codewords_puzzle(word_list, grid_size):
     grid = [['#' for _ in range(grid_size)] for _ in range(grid_size)]
