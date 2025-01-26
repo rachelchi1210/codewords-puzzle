@@ -40,4 +40,3 @@ def generate_codewords_puzzle(word_list, grid_size):
     coded_grid = [[f"{grid[r][c]}<sup>{letter_to_number.get(grid[r][c], '')}</sup>" if grid[r][c] != ' ' else '#' for c in range(grid_size)] for r in range(grid_size)]
 
     return coded_grid, grid, letter_to_number, placed_words
-
