@@ -12,6 +12,8 @@ if 'solution_grid' not in st.session_state:
     st.session_state['solution_grid'] = None
 if 'letter_to_number' not in st.session_state:
     st.session_state['letter_to_number'] = None
+if 'placed_words' not in st.session_state:
+    st.session_state['placed_words'] = []
 if 'show_solution' not in st.session_state:
     st.session_state['show_solution'] = False
 if 'current_grid_size' not in st.session_state:
@@ -26,10 +28,11 @@ word_input = st.text_area("Enter words (comma separated):", value=st.session_sta
 # Buttons for generating puzzle
 if st.button("Generate Puzzle"):
     word_list = [word.strip().upper() for word in word_input.split(",") if word.strip()]
-    coded_grid, solution_grid, letter_to_number = generate_codewords_puzzle(word_list, grid_size)
+    coded_grid, solution_grid, letter_to_number, placed_words = generate_codewords_puzzle(word_list, grid_size)
     st.session_state['coded_grid'] = coded_grid
     st.session_state['solution_grid'] = solution_grid
     st.session_state['letter_to_number'] = letter_to_number
+    st.session_state['placed_words'] = placed_words
     st.session_state['puzzle_generated'] = True
     st.session_state['current_grid_size'] = grid_size
     st.session_state['current_word_input'] = word_input
@@ -37,8 +40,8 @@ if st.button("Generate Puzzle"):
 col1, col2 = st.columns([1, 2])
 
 with col1:
-    st.subheader("Word List")
-    st.write(word_input.split(","))
+    st.subheader("Placed Words")
+    st.write(st.session_state['placed_words'])
 
 with col2:
     st.subheader("Generated Puzzle")
@@ -97,3 +100,4 @@ with col3:
         for key in list(st.session_state.keys()):
             del st.session_state[key]
         st.rerun()
+
