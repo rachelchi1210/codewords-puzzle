@@ -28,13 +28,13 @@ grid_size = st.number_input("Grid Size (6-20):", min_value=6, max_value=20, valu
 # Button to generate random words
 if st.button("Generate Random Words"):
     try:
-        # Ensure the number of words is correctly processed
+        # Get the exact number of words
         selected_count = int(word_count)
 
-        # Fetch exactly the required number of words
+        # Fetch the required number of words
         selected_words = get_random_words(selected_count)
 
-        # Store the correct number of words
+        # Store the exact number of words
         st.session_state['current_word_input'] = ", ".join(selected_words)
 
         # Debugging output
@@ -45,10 +45,8 @@ if st.button("Generate Random Words"):
     st.rerun()
 
 # Text area to display selected words
-st.subheader("Word List")
-if 'current_word_input' in st.session_state and st.session_state['current_word_input']:
-    st.write(st.session_state['current_word_input'])
-    st.write(f"Word count (debug): {len(st.session_state['current_word_input'].split(', '))} words generated")
+st.subheader("Enter words (comma separated):")
+st.text_area("Enter words:", value=st.session_state['current_word_input'], height=100)
 
 # Buttons for generating and resetting the puzzle
 if st.button("Generate Puzzle"):
@@ -59,3 +57,29 @@ if st.button("Reset"):
     for key in list(st.session_state.keys()):
         del st.session_state[key]
     st.rerun()
+
+# Word List Display
+st.subheader("Word List")
+if 'current_word_input' in st.session_state and st.session_state['current_word_input']:
+    st.write(st.session_state['current_word_input'])
+    st.write(f"Word count (debug): {len(st.session_state['current_word_input'].split(', '))} words generated")
+
+# Display puzzle with solution toggle buttons
+if st.session_state['puzzle_generated']:
+    col1, col2 = st.columns(2)
+
+    with col1:
+        if st.button("Show Solution"):
+            st.session_state['show_solution'] = True
+            st.rerun()
+    with col2:
+        if st.button("Hide Solution"):
+            st.session_state['show_solution'] = False
+            st.rerun()
+
+    # Placeholder for grid visualization (mock-up)
+    if st.session_state['show_solution']:
+        st.write("Puzzle with solution shown here.")
+    else:
+        st.write("Puzzle without solution shown here.")
+
