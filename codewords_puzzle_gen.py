@@ -1,23 +1,42 @@
-import random
+import streamlit as st
+from codewords_puzzle_gen import generate_codewords_puzzle
 
-def generate_codewords_puzzle(word_list, grid_size):
-    grid = [[' ' for _ in range(grid_size)] for _ in range(grid_size)]
+def create_grid_display(grid, show_solution):
+    return [['■' if cell == ' ' else (cell if show_solution else '?') for cell in row] for row in grid]
 
-    def place_word(word):
-        direction = random.choice(['H', 'V'])
-        max_row = grid_size if direction == 'H' else grid_size - len(word)
-        max_col = grid_size - len(word) if direction == 'H' else grid_size
+st.title("KDP A-Z Codeword Maker")
 
-        for _ in range(100):  # Try multiple placements
-            row, col = random.randint(0, max_row - 1), random.randint(0, max_col - 1)
-            positions = [(row, col + i) if direction == 'H' else (row + i, col) for i in range(len(word))]
+grid_size = st.number_input("Grid Size (10-20):", min_value=10, max_value=20, value=10)
+word_input = st.text_area("Enter words (comma separated):")
 
-            if all(grid[r][c] == ' ' for r, c in positions):
-                for i, (r, c) in enumerate(positions):
-                    grid[r][c] = word[i]
-                return
+if 'show_solution' not in st.session_state:
+    st.session_state['show_solution'] = False
 
-    for word in word_list:
-        place_word(word.upper())
+if word_input:
+    word_list = [word.strip().upper() for word in word_input.split(",") if word.strip()]
+    coded_grid, solution_grid = generate_codewords_puzzle(word_list, grid_size)
+    display_grid = create_grid_display(solution_grid, st.session_state['show_solution'])
 
-    return grid, grid  # Returning original grid for display purposes
+    col1, col2 = st.columns([1, 2])
+
+    with col1:
+        st.subheader("Enter Your Words")
+        st.write(word_list)
+    
+    with col2:
+        st.subheader("Generated Puzzle")
+        puzzle_html = "<table border='1' style='width:100%; text-align:center;'>"
+        for row in display_grid:
+            puzzle_html += "<tr>" + "".join(f"<td style='padding:10px;'>{cell}</td>" for cell in row) + "</tr>"
+        puzzle_html += "</table>"
+        st.markdown(puzzle_html, unsafe_allow_html=True)
+
+col1, col2 = st.columns(2)
+with col1:
+    if st.button("Show Solution"):
+        st.session_state['show_solution'] = True
+        st.rerun()
+with col2:
+    if st.button("Hide Solution"):
+        st.session_state['show_solution'] = False
+        st.rerun()
