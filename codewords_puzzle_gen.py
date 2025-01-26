@@ -1,6 +1,7 @@
 import random
 
-# Load words from a file
+import random
+
 def load_words_from_file(filename="kids_combined_word_list.txt"):
     try:
         with open(filename, "r") as file:
@@ -9,10 +10,12 @@ def load_words_from_file(filename="kids_combined_word_list.txt"):
     except FileNotFoundError:
         return ["default", "words", "if", "file", "not", "found"]
 
-# Get random words from the loaded list
 def get_random_words(count):
     words = load_words_from_file()
-    return random.sample(words, min(count, len(words)))
+    words = list(filter(None, words))  # Remove empty or None values
+    unique_words = list(set(words))  # Remove duplicates
+    return random.sample(unique_words, min(count, len(unique_words)))
+
 
 # Generate codewords puzzle with precise word count
 def generate_codewords_puzzle(word_list, grid_size):
