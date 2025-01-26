@@ -60,6 +60,12 @@ if st.button("Generate Puzzle"):
 st.subheader("Word List")
 if 'current_word_input' in st.session_state and st.session_state['current_word_input']:
     st.write(st.session_state['current_word_input'])
+    
+    # Debugging: Print the number of words in the word list
+    word_list = st.session_state['current_word_input'].split(", ")
+    st.write(f"Word count (debug): {len(word_list)} words generated")
+
+
 
 col1, col2 = st.columns([1, 2])
 
