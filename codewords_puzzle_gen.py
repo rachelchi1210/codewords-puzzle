@@ -27,7 +27,8 @@ def generate_codewords_puzzle(word_list, grid_size):
     letters = sorted(set(c for row in grid for c in row if c != ' '))
     letter_to_number = {letter: str(index + 1) for index, letter in enumerate(letters)}
 
-    # Create coded grid with numbers and fill empty spaces with a solid black character
-    coded_grid = [[letter_to_number.get(grid[r][c], '\u2588') if grid[r][c] != ' ' else '\u2588' for c in range(grid_size)] for r in range(grid_size)]
+    # Create coded grid with numbers and letters in each cell
+    coded_grid = [[f"{grid[r][c]}<sup>{letter_to_number.get(grid[r][c], '')}</sup>" if grid[r][c] != ' ' else '#' for c in range(grid_size)] for r in range(grid_size)]
 
-    return coded_grid, grid
+    return coded_grid, grid, letter_to_number
+
