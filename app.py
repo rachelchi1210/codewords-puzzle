@@ -25,22 +25,20 @@ word_count = st.number_input("Number of Words:", min_value=1, max_value=grid_siz
 
 # Generate random words button
 if st.button("Generate Random Words"):
-    try:
-        word_count = int(word_count)  # Ensure word count is treated as an integer
+    # Ensure word_count is treated as an integer and limit its value correctly
+    selected_count = int(word_count) 
 
-        # Call the function with the correct count
-        selected_words = get_random_words(word_count)
+    # Fetch exactly the required number of words
+    selected_words = get_random_words(selected_count)
 
-        # Store the exact number of words
-        st.session_state['current_word_input'] = ", ".join(selected_words[:word_count])
+    # Store the correct number of words in session state
+    st.session_state['current_word_input'] = ", ".join(selected_words)
 
-        # Debugging: Print to Streamlit to verify correct count
-        st.write(f"Generated {len(selected_words[:word_count])} words")
-
-    except Exception as e:
-        st.error(f"Error generating words: {str(e)}")
+    # Debugging: Print the number of words selected
+    st.write(f"Generated {len(selected_words)} words")
 
     st.rerun()
+
 
 
 
