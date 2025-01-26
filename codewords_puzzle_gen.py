@@ -1,7 +1,5 @@
 import random
 
-import random
-
 def load_words_from_file(filename="kids_combined_word_list.txt"):
     try:
         with open(filename, "r") as file:
@@ -12,29 +10,22 @@ def load_words_from_file(filename="kids_combined_word_list.txt"):
 
 def get_random_words(count):
     words = load_words_from_file()
-    words = list(filter(None, words))  # Remove empty or None values
-    unique_words = list(set(words))  # Remove duplicates
-    return random.sample(unique_words, min(count, len(unique_words)))
+    words = list(set(filter(None, words)))  # Remove duplicates and empty words
+    return random.sample(words, min(count, len(words)))
 
-
-# Generate codewords puzzle with precise word count
 def generate_codewords_puzzle(word_list, grid_size):
     grid = [['#' for _ in range(grid_size)] for _ in range(grid_size)]
     solution_grid = [['#' for _ in range(grid_size)] for _ in range(grid_size)]
     letter_to_number = {}
     letter_count = 1
 
-    # Ensure the exact number of words requested
-    if len(word_list) > grid_size:
-        word_list = random.sample(word_list, grid_size)
-    else:
-        word_list = word_list[:]
+    # Limit the number of words to the chosen count
+    selected_words = random.sample(word_list, min(len(word_list), grid_size))
 
     # Define possible placement directions (horizontal, vertical)
-    directions = [(0, 1), (1, 0)]  # (row change, column change)
+    directions = [(0, 1), (1, 0)]
 
     def can_place_word(word, row, col, direction):
-        """Check if the word fits in the given position and direction."""
         if direction == (0, 1):  # Horizontal
             if col + len(word) > grid_size:
                 return False
@@ -73,10 +64,9 @@ def generate_codewords_puzzle(word_list, grid_size):
 
             attempts += 1
 
-    # Place the requested number of words
-    for word in word_list:
+    # Place the selected words
+    for word in selected_words:
         place_word(word.upper())
 
     return grid, solution_grid, letter_to_number
-
 
