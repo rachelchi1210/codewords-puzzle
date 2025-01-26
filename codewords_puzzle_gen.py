@@ -23,12 +23,11 @@ def generate_codewords_puzzle(word_list, grid_size):
     for word in word_list:
         place_word(word.upper())
 
-    # Assign random numbers to letters
+    # Assign numbers to letters
     letters = list(set(c for row in grid for c in row if c != ' '))
-    letter_to_number = {letter: str(i + 1) for i, letter in enumerate(letters)}
+    letter_to_number = {letter: str(i + 1) for i, letter in enumerate(sorted(letters))}
 
     # Create coded grid with numbers
-    coded_grid = [[letter_to_number.get(grid[r][c], random.choice(string.digits)) if grid[r][c] != ' ' else '■' for c in range(grid_size)] for r in range(grid_size)]
+    coded_grid = [[letter_to_number.get(grid[r][c], ' ') if grid[r][c] != ' ' else '■' for c in range(grid_size)] for r in range(grid_size)]
 
     return coded_grid, grid
-
