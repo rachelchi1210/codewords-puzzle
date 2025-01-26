@@ -3,7 +3,7 @@ import string
 
 def generate_codewords_puzzle(word_list, grid_size):
     grid = [['#' for _ in range(grid_size)] for _ in range(grid_size)]
-    
+
     def can_place_word(word, row, col, direction):
         if direction == "H":
             if col + len(word) > grid_size:
@@ -11,7 +11,7 @@ def generate_codewords_puzzle(word_list, grid_size):
             for i in range(len(word)):
                 if grid[row][col + i] != '#':
                     return False
-        else:
+        elif direction == "V":
             if row + len(word) > grid_size:
                 return False
             for i in range(len(word)):
@@ -20,9 +20,11 @@ def generate_codewords_puzzle(word_list, grid_size):
         return True
 
     def place_word(word):
-        direction = random.choice(["H", "V"])
-        attempts = 100
+        directions = ["H", "V"]
+        random.shuffle(directions)  # Try horizontal and vertical in random order
+        attempts = 500  # Increase attempts to ensure better placement
         while attempts > 0:
+            direction = random.choice(directions)
             row = random.randint(0, grid_size - 1)
             col = random.randint(0, grid_size - 1)
             if can_place_word(word, row, col, direction):
@@ -44,22 +46,4 @@ def generate_codewords_puzzle(word_list, grid_size):
     alphabet = list(string.ascii_uppercase)
     numbers = list(range(1, 27))
     random.shuffle(numbers)
-    letter_to_number = dict(zip(alphabet, numbers))
-
-    coded_grid = []
-    solution_grid = []
-
-    for row in grid:
-        coded_row = []
-        solution_row = []
-        for cell in row:
-            if cell == '#':
-                coded_row.append('#')
-                solution_row.append('#')
-            else:
-                coded_row.append(f"{cell}<sup>{letter_to_number[cell]}</sup>")
-                solution_row.append(cell)
-        coded_grid.append(coded_row)
-        solution_grid.append(solution_row)
-
-    return coded_grid, solution_grid, letter_to_number, placed_words
+    letter_to_number = dict(z
