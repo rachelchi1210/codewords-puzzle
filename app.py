@@ -1,7 +1,7 @@
 import streamlit as st
 from codewords_puzzle_gen import generate_codewords_puzzle
 
-st.title("KDP A-Z Codeword Maker")
+st.title("Codeword Maker")
 
 # Session state initialization
 if 'puzzle_generated' not in st.session_state:
