@@ -1,8 +1,10 @@
 import streamlit as st
 from codewords_puzzle_gen import generate_codewords_puzzle
-from PIL import Image, ImageDraw, ImageFont
 from io import BytesIO
-import pandas as pd
+from reportlab.lib.pagesizes import letter
+from reportlab.pdfgen import canvas
+import base64
+from PIL import Image, ImageDraw, ImageFont
 
 st.title("Codeword Maker")
 
@@ -79,11 +81,8 @@ with col2:
                 if cell == '#':
                     puzzle_html += "<td class='black'></td>"
                 else:
-                    if "<sup>" in cell:
-                        letter, number = cell.split("<sup>")
-                        number = number.replace("</sup>", "")
-                    else:
-                        letter, number = cell, ""
+                    letter = cell.split("<sup>")[0]
+                    number = cell.split("<sup>")[1].replace("</sup>", "")
                     letter_class = "hidden" if not st.session_state['show_solution'] else ""
                     puzzle_html += f"<td><span class='sup'>{number}</span><span class='{letter_class}'>{letter}</span></td>"
             puzzle_html += "</tr>"
@@ -91,46 +90,45 @@ with col2:
         puzzle_html += "</table>"
         st.markdown(puzzle_html, unsafe_allow_html=True)
 
-        # Function to create and download PNG
-        def create_puzzle_image(grid):
-            cell_size = 50
-            img_width = len(grid[0]) * cell_size
-            img_height = len(grid) * cell_size
-
-            img = Image.new("RGB", (img_width, img_height), "white")
+        # Export to PNG
+        def export_to_png():
+            img = Image.new('RGB', (grid_size * 50, grid_size * 50), color='white')
             draw = ImageDraw.Draw(img)
-
             font = ImageFont.load_default()
+            for r, row in enumerate(st.session_state['coded_grid']):
+                for c, cell in enumerate(row):
+                    text = cell.replace("<sup>", "").replace("</sup>", "")
+                    draw.text((c * 50 + 15, r * 50 + 15), text, font=font, fill='black')
+            img.save("puzzle.png")
+            return "puzzle.png"
 
-            for row_index, row in enumerate(grid):
-                for col_index, cell in enumerate(row):
-                    x0 = col_index * cell_size
-                    y0 = row_index * cell_size
-                    x1 = x0 + cell_size
-                    y1 = y0 + cell_size
-                    draw.rectangle([x0, y0, x1, y1], outline="black")
-                    if cell != "#":
-                        draw.text((x0 + 15, y0 + 10), cell, fill="black", font=font)
+        if st.button("Download as PNG"):
+            png_path = export_to_png()
+            with open(png_path, "rb") as file:
+                btn = st.download_button(
+                    label="Download PNG",
+                    data=file,
+                    file_name="puzzle.png",
+                    mime="image/png"
+                )
 
-            return img
+        # Export to PDF
+        def export_to_pdf():
+            buffer = BytesIO()
+            c = canvas.Canvas(buffer, pagesize=letter)
+            for r, row in enumerate(st.session_state['coded_grid']):
+                for c_idx, cell in enumerate(row):
+                    text = cell.replace("<sup>", "").replace("</sup>", "")
+                    c.drawString(c_idx * 50 + 50, 750 - r * 50, text)
+            c.save()
+            buffer.seek(0)
+            return buffer
 
-        img = create_puzzle_image(st.session_state['coded_grid'])
-        buf = BytesIO()
-        img.save(buf, format="PNG")
-        st.download_button("Download as PNG", buf.getvalue(), file_name="puzzle.png", mime="image/png")
+        pdf_buffer = export_to_pdf()
+        st.download_button(
+            "Download as PDF", pdf_buffer, file_name="puzzle.pdf", mime="application/pdf"
+        )
 
-        # Export puzzle as PDF
-        def create_pdf(grid):
-            pdf_buffer = BytesIO()
-            df = pd.DataFrame(grid)
-            df.to_csv(pdf_buffer, index=False)
-            pdf_buffer.seek(0)
-            return pdf_buffer
-
-        pdf_file = create_pdf(st.session_state['coded_grid'])
-        st.download_button("Download as PDF", pdf_file, file_name="puzzle.pdf", mime="application/pdf")
-
-# Buttons for toggling solution visibility
 col1, col2, col3 = st.columns(3)
 with col1:
     if st.button("Show Solution"):
