@@ -1,10 +1,5 @@
 import streamlit as st
 from codewords_puzzle_gen import generate_codewords_puzzle
-from io import BytesIO
-from reportlab.lib.pagesizes import letter
-from reportlab.pdfgen import canvas
-import base64
-from PIL import Image, ImageDraw, ImageFont
 
 st.title("Codeword Maker")
 
@@ -90,45 +85,7 @@ with col2:
         puzzle_html += "</table>"
         st.markdown(puzzle_html, unsafe_allow_html=True)
 
-        # Export to PNG
-        def export_to_png():
-            img = Image.new('RGB', (grid_size * 50, grid_size * 50), color='white')
-            draw = ImageDraw.Draw(img)
-            font = ImageFont.load_default()
-            for r, row in enumerate(st.session_state['coded_grid']):
-                for c, cell in enumerate(row):
-                    text = cell.replace("<sup>", "").replace("</sup>", "")
-                    draw.text((c * 50 + 15, r * 50 + 15), text, font=font, fill='black')
-            img.save("puzzle.png")
-            return "puzzle.png"
-
-        if st.button("Download as PNG"):
-            png_path = export_to_png()
-            with open(png_path, "rb") as file:
-                btn = st.download_button(
-                    label="Download PNG",
-                    data=file,
-                    file_name="puzzle.png",
-                    mime="image/png"
-                )
-
-        # Export to PDF
-        def export_to_pdf():
-            buffer = BytesIO()
-            c = canvas.Canvas(buffer, pagesize=letter)
-            for r, row in enumerate(st.session_state['coded_grid']):
-                for c_idx, cell in enumerate(row):
-                    text = cell.replace("<sup>", "").replace("</sup>", "")
-                    c.drawString(c_idx * 50 + 50, 750 - r * 50, text)
-            c.save()
-            buffer.seek(0)
-            return buffer
-
-        pdf_buffer = export_to_pdf()
-        st.download_button(
-            "Download as PDF", pdf_buffer, file_name="puzzle.pdf", mime="application/pdf"
-        )
-
+# Buttons for toggling solution visibility
 col1, col2, col3 = st.columns(3)
 with col1:
     if st.button("Show Solution"):
@@ -143,3 +100,4 @@ with col3:
         for key in list(st.session_state.keys()):
             del st.session_state[key]
         st.rerun()
+
