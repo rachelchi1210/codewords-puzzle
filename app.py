@@ -1,9 +1,9 @@
 import streamlit as st
-from codewords_puzzle_gen import generate_codewords_puzzle
+from codewords_puzzle_gen import get_random_words, generate_codewords_puzzle
 
 st.title("KDP A-Z Codeword Maker")
 
-# Session state initialization
+# Initialize session state
 if 'puzzle_generated' not in st.session_state:
     st.session_state['puzzle_generated'] = False
 if 'coded_grid' not in st.session_state:
@@ -12,36 +12,38 @@ if 'solution_grid' not in st.session_state:
     st.session_state['solution_grid'] = None
 if 'letter_to_number' not in st.session_state:
     st.session_state['letter_to_number'] = None
-if 'placed_words' not in st.session_state:
-    st.session_state['placed_words'] = []
 if 'show_solution' not in st.session_state:
     st.session_state['show_solution'] = False
-if 'current_grid_size' not in st.session_state:
-    st.session_state['current_grid_size'] = 10
 if 'current_word_input' not in st.session_state:
     st.session_state['current_word_input'] = ""
 
-# Input for grid size and words
-grid_size = st.number_input("Grid Size (6-20):", min_value=6, max_value=20, value=st.session_state['current_grid_size'])
-word_input = st.text_area("Enter words (comma separated):", value=st.session_state['current_word_input'])
+# Grid size input
+grid_size = st.number_input("Grid Size (6-20):", min_value=6, max_value=20, value=10)
+word_count = st.number_input("Number of Words:", min_value=1, max_value=20, value=10)
 
-# Buttons for generating puzzle
+# Button to generate random words
+if st.button("Generate Random Words"):
+    random_words = get_random_words(word_count)
+    st.session_state['current_word_input'] = ", ".join(random_words)
+    st.experimental_rerun()
+
+word_input = st.text_area("Enter words (comma separated):", value=st.session_state.get('current_word_input', ""))
+
+# Generate puzzle
 if st.button("Generate Puzzle"):
     word_list = [word.strip().upper() for word in word_input.split(",") if word.strip()]
-    coded_grid, solution_grid, letter_to_number, placed_words = generate_codewords_puzzle(word_list, grid_size)
-    st.session_state['coded_grid'] = coded_grid
-    st.session_state['solution_grid'] = solution_grid
-    st.session_state['letter_to_number'] = letter_to_number
-    st.session_state['placed_words'] = placed_words
-    st.session_state['puzzle_generated'] = True
-    st.session_state['current_grid_size'] = grid_size
-    st.session_state['current_word_input'] = word_input
+    if word_list:
+        coded_grid, solution_grid, letter_to_number = generate_codewords_puzzle(word_list, grid_size)
+        st.session_state['coded_grid'] = coded_grid
+        st.session_state['solution_grid'] = solution_grid
+        st.session_state['letter_to_number'] = letter_to_number
+        st.session_state['puzzle_generated'] = True
 
 col1, col2 = st.columns([1, 2])
 
 with col1:
-    st.subheader("Placed Words")
-    st.write(st.session_state['placed_words'])
+    st.subheader("Word List")
+    st.write(word_input.split(","))
 
 with col2:
     st.subheader("Generated Puzzle")
@@ -85,7 +87,7 @@ with col2:
         puzzle_html += "</table>"
         st.markdown(puzzle_html, unsafe_allow_html=True)
 
-# Buttons for toggling solution visibility
+# Buttons for toggling solution visibility and reset
 col1, col2, col3 = st.columns(3)
 with col1:
     if st.button("Show Solution"):
@@ -100,4 +102,5 @@ with col3:
         for key in list(st.session_state.keys()):
             del st.session_state[key]
         st.rerun()
+
 
