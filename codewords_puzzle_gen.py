@@ -16,13 +16,17 @@ def get_random_words(count):
 
 # Generate codewords puzzle with a strict word limit
 def generate_codewords_puzzle(word_list, grid_size):
+    # Initialize empty grids
     grid = [['#' for _ in range(grid_size)] for _ in range(grid_size)]
     solution_grid = [['#' for _ in range(grid_size)] for _ in range(grid_size)]
     letter_to_number = {}
     letter_count = 1
 
-    # Ensure that only the requested number of words is placed
-    word_list = word_list[:grid_size]  # Strictly limit to grid size or word count
+    # Ensure the number of words does not exceed the requested limit
+    word_list = word_list[:grid_size]
+
+    # Define possible directions for word placement
+    directions = [(0, 1), (1, 0)]  # Horizontal (right), Vertical (down)
 
     def place_word(word):
         nonlocal letter_count
@@ -30,26 +34,27 @@ def generate_codewords_puzzle(word_list, grid_size):
         attempts = 0
 
         while not placed and attempts < 100:
-            direction = random.choice(["H", "V"])
-            if direction == "H":  # Place horizontally
-                row, col = random.randint(0, grid_size - 1), random.randint(0, grid_size - len(word))
-                if all(grid[row][col + i] == '#' for i in range(len(word))):  # Ensure space is empty
+            direction = random.choice(directions)
+            row_start = random.randint(0, grid_size - 1)
+            col_start = random.randint(0, grid_size - 1)
+            
+            if direction == (0, 1):  # Horizontal placement
+                if col_start + len(word) <= grid_size and all(grid[row_start][col_start + i] == '#' for i in range(len(word))):
                     for i, letter in enumerate(word):
                         if letter not in letter_to_number:
                             letter_to_number[letter] = letter_count
                             letter_count += 1
-                        grid[row][col + i] = f"{letter}<sup>{letter_to_number[letter]}</sup>"
-                        solution_grid[row][col + i] = letter
+                        grid[row_start][col_start + i] = f"{letter}<sup>{letter_to_number[letter]}</sup>"
+                        solution_grid[row_start][col_start + i] = letter
                     placed = True
-            else:  # Place vertically
-                row, col = random.randint(0, grid_size - len(word)), random.randint(0, grid_size - 1)
-                if all(grid[row + i][col] == '#' for i in range(len(word))):  # Ensure space is empty
+            elif direction == (1, 0):  # Vertical placement
+                if row_start + len(word) <= grid_size and all(grid[row_start + i][col_start] == '#' for i in range(len(word))):
                     for i, letter in enumerate(word):
                         if letter not in letter_to_number:
                             letter_to_number[letter] = letter_count
                             letter_count += 1
-                        grid[row + i][col] = f"{letter}<sup>{letter_to_number[letter]}</sup>"
-                        solution_grid[row + i][col] = letter
+                        grid[row_start + i][col_start] = f"{letter}<sup>{letter_to_number[letter]}</sup>"
+                        solution_grid[row_start + i][col_start] = letter
                     placed = True
             attempts += 1
 
