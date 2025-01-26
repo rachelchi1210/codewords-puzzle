@@ -1,5 +1,6 @@
 import streamlit as st
 from codewords_puzzle_gen import generate_codewords_puzzle
+import random
 
 st.title("Codeword Maker")
 
@@ -28,7 +29,10 @@ word_input = st.text_area("Enter words (comma separated):", value=st.session_sta
 # Buttons for generating puzzle
 if st.button("Generate Puzzle"):
     word_list = [word.strip().upper() for word in word_input.split(",") if word.strip()]
-    coded_grid, solution_grid, letter_to_number, placed_words = generate_codewords_puzzle(word_list, grid_size)
+    alphabet = list("ABCDEFGHIJKLMNOPQRSTUVWXYZ")
+    random.shuffle(alphabet)
+    letter_to_number = {letter: idx + 1 for idx, letter in enumerate(alphabet)}
+    coded_grid, solution_grid, placed_words = generate_codewords_puzzle(word_list, grid_size, letter_to_number)
     st.session_state['coded_grid'] = coded_grid
     st.session_state['solution_grid'] = solution_grid
     st.session_state['letter_to_number'] = letter_to_number
