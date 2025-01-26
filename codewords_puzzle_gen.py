@@ -46,4 +46,5 @@ def generate_codewords_puzzle(word_list, grid_size):
     alphabet = list(string.ascii_uppercase)
     numbers = list(range(1, 27))
     random.shuffle(numbers)
-    letter_to_number = dict(z
+    letter_to_number = dict(zip(alphabet, numbers))
+
