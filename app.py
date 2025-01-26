@@ -1,6 +1,5 @@
 import streamlit as st
 from codewords_puzzle_gen import generate_codewords_puzzle
-import random
 
 st.title("Codeword Maker")
 
@@ -29,10 +28,8 @@ word_input = st.text_area("Enter words (comma separated):", value=st.session_sta
 # Buttons for generating puzzle
 if st.button("Generate Puzzle"):
     word_list = [word.strip().upper() for word in word_input.split(",") if word.strip()]
-    alphabet = list("ABCDEFGHIJKLMNOPQRSTUVWXYZ")
-    random.shuffle(alphabet)
-    letter_to_number = {letter: idx + 1 for idx, letter in enumerate(alphabet)}
-    coded_grid, solution_grid, placed_words = generate_codewords_puzzle(word_list, grid_size, letter_to_number)
+    coded_grid, solution_grid, letter_to_number, placed_words = generate_codewords_puzzle(word_list, grid_size)
+    
     st.session_state['coded_grid'] = coded_grid
     st.session_state['solution_grid'] = solution_grid
     st.session_state['letter_to_number'] = letter_to_number
@@ -80,8 +77,8 @@ with col2:
                 if cell == '#':
                     puzzle_html += "<td class='black'></td>"
                 else:
-                    letter = cell.split("<sup>")[0]
-                    number = cell.split("<sup>")[1].replace("</sup>", "")
+                    letter, number = cell.split("<sup>")
+                    number = number.replace("</sup>", "")
                     letter_class = "hidden" if not st.session_state['show_solution'] else ""
                     puzzle_html += f"<td><span class='sup'>{number}</span><span class='{letter_class}'>{letter}</span></td>"
             puzzle_html += "</tr>"
