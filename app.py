@@ -26,9 +26,23 @@ if word_input:
         puzzle_html = """
         <style>
             table { border-collapse: collapse; }
-            td { border: 1px solid black; width: 30px; height: 30px; text-align: center; position: relative; }
+            td { 
+                border: 1px solid black; 
+                width: 40px; 
+                height: 40px; 
+                text-align: center; 
+                position: relative; 
+                font-size: 20px;
+            }
             td.black { background-color: black; }
-            .sup { font-size: 12px; position: absolute; top: 2px; right: 5px; color: grey; }
+            .sup { 
+                font-size: 12px; 
+                position: absolute; 
+                top: 2px; 
+                right: 5px; 
+                color: grey; 
+            }
+            .hidden { color: transparent; }
         </style>
         <table>
         """
@@ -41,7 +55,8 @@ if word_input:
                 else:
                     letter, number = cell.split("<sup>")
                     number = number.replace("</sup>", "")
-                    puzzle_html += f"<td>{letter}<span class='sup'>{number}</span></td>"
+                    letter_class = "hidden" if not st.session_state['show_solution'] else ""
+                    puzzle_html += f"<td>{number}<span class='sup {letter_class}'>{letter}</span></td>"
             puzzle_html += "</tr>"
 
         puzzle_html += "</table>"
@@ -57,3 +72,4 @@ with col2:
     if st.button("Hide Solution"):
         st.session_state['show_solution'] = False
         st.rerun()
+
