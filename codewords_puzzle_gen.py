@@ -1,42 +1,40 @@
 import random
 
+# Load words from a file
+def load_words_from_file(filename="kids_combined_word_list.txt"):
+    try:
+        with open(filename, "r") as file:
+            words = [line.strip() for line in file if line.strip() and not line.startswith("#")]
+        return words
+    except FileNotFoundError:
+        return ["default", "words", "if", "file", "not", "found"]
+
+# Get random words from the loaded list
+def get_random_words(count):
+    words = load_words_from_file()
+    return random.sample(words, min(count, len(words)))
+
+# Generate codewords puzzle
 def generate_codewords_puzzle(word_list, grid_size):
-    grid = [[' ' for _ in range(grid_size)] for _ in range(grid_size)]
+    grid = [['#' for _ in range(grid_size)] for _ in range(grid_size)]
+    solution_grid = [['#' for _ in range(grid_size)] for _ in range(grid_size)]
+    letter_to_number = {}
+    letter_count = 1
 
     def place_word(word):
-        if len(word) > grid_size:
-            return False  # Skip words that are too long to fit
+        nonlocal letter_count
+        max_row, max_col = grid_size - len(word), grid_size
+        row, col = random.randint(0, max_row - 1), random.randint(0, max_col - 1)
 
-        directions = ['H', 'V']
-        random.shuffle(directions)
+        for i, letter in enumerate(word):
+            if letter not in letter_to_number:
+                letter_to_number[letter] = letter_count
+                letter_count += 1
+            grid[row][col + i] = f"{letter}<sup>{letter_to_number[letter]}</sup>"
+            solution_grid[row][col + i] = letter
 
-        for direction in directions:
-            max_row = grid_size if direction == 'H' else grid_size - len(word)
-            max_col = grid_size - len(word) if direction == 'H' else grid_size
+    for word in word_list:
+        place_word(word)
 
-            if max_row <= 0 or max_col <= 0:
-                continue
+    return grid, solution_grid, letter_to_number
 
-            for _ in range(100):  # Attempt placement up to 100 times
-                row, col = random.randint(0, max_row - 1), random.randint(0, max_col - 1)
-                positions = [(row, col + i) if direction == 'H' else (row + i, col) for i in range(len(word))]
-
-                if all(grid[r][c] == ' ' for r, c in positions):
-                    for i, (r, c) in enumerate(positions):
-                        grid[r][c] = word[i]
-                    return True
-        return False
-
-    # Sort words by length (longest first to avoid blocking space for smaller words)
-    word_list.sort(key=len, reverse=True)
-    
-    placed_words = [word for word in word_list if place_word(word.upper())]
-
-    # Assign numbers to letters
-    letters = sorted(set(c for row in grid for c in row if c != ' '))
-    letter_to_number = {letter: str(index + 1) for index, letter in enumerate(letters)}
-
-    # Create coded grid with numbers and letters in each cell
-    coded_grid = [[f"{grid[r][c]}<sup>{letter_to_number.get(grid[r][c], '')}</sup>" if grid[r][c] != ' ' else '#' for c in range(grid_size)] for r in range(grid_size)]
-
-    return coded_grid, grid, letter_to_number, placed_words
