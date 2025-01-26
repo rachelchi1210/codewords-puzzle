@@ -24,8 +24,10 @@ word_count = st.number_input("Number of Words:", min_value=1, max_value=20, valu
 # Button to generate random words
 if st.button("Generate Random Words"):
     random_words = get_random_words(word_count)
-    st.session_state['current_word_input'] = ", ".join(random_words)
+    clean_words = [word.strip() for word in random_words if word.strip()]
+    st.session_state['current_word_input'] = ", ".join(clean_words)
     st.rerun()
+
 
 
 word_input = st.text_area("Enter words (comma separated):", value=st.session_state.get('current_word_input', ""))
