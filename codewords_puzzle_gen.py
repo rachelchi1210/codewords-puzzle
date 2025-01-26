@@ -5,9 +5,15 @@ def generate_codewords_puzzle(word_list, grid_size):
     grid = [[' ' for _ in range(grid_size)] for _ in range(grid_size)]
 
     def place_word(word):
+        if len(word) > grid_size:
+            return False  # Skip words that are too long to fit
+
         direction = random.choice(['H', 'V'])
         max_row = grid_size if direction == 'H' else grid_size - len(word)
         max_col = grid_size - len(word) if direction == 'H' else grid_size
+
+        if max_row <= 0 or max_col <= 0:
+            return False  # Ensure valid range
 
         for _ in range(100):  # Attempt multiple placements
             row, col = random.randint(0, max_row - 1), random.randint(0, max_col - 1)
