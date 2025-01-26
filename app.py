@@ -7,22 +7,35 @@ st.title("KDP A-Z Codeword Maker")
 grid_size = st.number_input("Grid Size (10-20):", min_value=10, max_value=20, value=10)
 word_input = st.text_area("Enter words (comma separated):")
 
-# Session state for showing solution
+# Session state for storing the generated puzzle
+if 'puzzle_generated' not in st.session_state:
+    st.session_state['puzzle_generated'] = False
+if 'coded_grid' not in st.session_state:
+    st.session_state['coded_grid'] = None
+if 'solution_grid' not in st.session_state:
+    st.session_state['solution_grid'] = None
+if 'letter_to_number' not in st.session_state:
+    st.session_state['letter_to_number'] = None
 if 'show_solution' not in st.session_state:
     st.session_state['show_solution'] = False
 
-if word_input:
+if word_input and not st.session_state['puzzle_generated']:
     word_list = [word.strip().upper() for word in word_input.split(",") if word.strip()]
     coded_grid, solution_grid, letter_to_number = generate_codewords_puzzle(word_list, grid_size)
+    st.session_state['coded_grid'] = coded_grid
+    st.session_state['solution_grid'] = solution_grid
+    st.session_state['letter_to_number'] = letter_to_number
+    st.session_state['puzzle_generated'] = True
 
-    col1, col2 = st.columns([1, 2])
+col1, col2 = st.columns([1, 2])
 
-    with col1:
-        st.subheader("Word List")
-        st.write(word_list)
+with col1:
+    st.subheader("Word List")
+    st.write(word_input.split(","))
 
-    with col2:
-        st.subheader("Generated Puzzle")
+with col2:
+    st.subheader("Generated Puzzle")
+    if st.session_state['coded_grid']:
         puzzle_html = """
         <style>
             table { border-collapse: collapse; }
@@ -47,7 +60,7 @@ if word_input:
         <table>
         """
 
-        for row in coded_grid:
+        for row in st.session_state['coded_grid']:
             puzzle_html += "<tr>"
             for cell in row:
                 if cell == '#':
@@ -72,3 +85,4 @@ with col2:
     if st.button("Hide Solution"):
         st.session_state['show_solution'] = False
         st.rerun()
+
