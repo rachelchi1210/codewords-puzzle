@@ -1,67 +1,65 @@
 import random
 
-def generate_codewords_puzzle(words, grid_size):
-    # Initialize empty grid with black squares
+def generate_codewords_puzzle(word_list, grid_size):
+    # Initialize the grid with empty spaces
     grid = [['#' for _ in range(grid_size)] for _ in range(grid_size)]
     solution_grid = [['#' for _ in range(grid_size)] for _ in range(grid_size)]
+    
     placed_words = []
+    letter_to_number = {}
+    current_number = 1
+
+    def can_place_word(word, row, col, direction):
+        """ Check if the word can be placed at the given position and direction. """
+        if direction == 'H':
+            if col + len(word) > grid_size:
+                return False
+            for i in range(len(word)):
+                if grid[row][col + i] != '#' and grid[row][col + i] != word[i]:
+                    return False
+        else:  # Vertical placement
+            if row + len(word) > grid_size:
+                return False
+            for i in range(len(word)):
+                if grid[row + i][col] != '#' and grid[row + i][col] != word[i]:
+                    return False
+        return True
 
     def place_word(word):
-    max_row = len(grid)
-    max_col = len(grid[0])
+        """ Place the word in a random position and direction if possible. """
+        nonlocal current_number
+        for _ in range(100):  # Try 100 times to place the word
+            direction = random.choice(['H', 'V'])
+            row = random.randint(0, grid_size - 1)
+            col = random.randint(0, grid_size - 1)
 
-    for _ in range(100):  # Attempt multiple placements
-        r, c = random.randint(0, max_row - 1), random.randint(0, max_col - 1)
-        direction = random.choice([(0, 1), (1, 0)])  # Right or down
-        
-        # Check if word fits in the chosen direction
-        if direction == (0, 1) and c + len(word) <= max_col:
-            if all(grid[r][c + i] == '#' for i in range(len(word))):
+            if can_place_word(word, row, col, direction):
                 for i in range(len(word)):
-                    grid[r][c + i] = word[i]
-                return True
-        
-        elif direction == (1, 0) and r + len(word) <= max_row:
-            if all(grid[r + i][c] == '#' for i in range(len(word))):
-                for i in range(len(word)):
-                    grid[r + i][c] = word[i]
-                return True
-
-    return False  # Word placement failed
-
-
-            # Check if the word fits without conflict
-            conflict = False
-            for i in range(len(word)):
-                r, c = row + i * dir_x, col + i * dir_y
-                if grid[r][c] != '#':
-                    conflict = True
-                    break
-
-            if not conflict:
-                for i in range(len(word)):
-                    r, c = row + i * dir_x, col + i * dir_y
-                    grid[r][c] = word[i]
-                    solution_grid[r][c] = word[i]
+                    if direction == 'H':
+                        grid[row][col + i] = word[i]
+                        solution_grid[row][col + i] = f"{word[i]}<sup>{current_number}</sup>"
+                    else:
+                        grid[row + i][col] = word[i]
+                        solution_grid[row + i][col] = f"{word[i]}<sup>{current_number}</sup>"
+                    
+                    # Assign a unique number to each letter
+                    if word[i] not in letter_to_number:
+                        letter_to_number[word[i]] = current_number
+                        current_number += 1
+                
                 placed_words.append(word)
                 return True
         return False
 
-    for word in words:
+    # Shuffle the word list to ensure random placement
+    random.shuffle(word_list)
+
+    # Try to place each word
+    for word in word_list:
         if not place_word(word.upper()):
-            continue  # Skip if the word can't be placed
+            continue  # Skip the word if it cannot be placed
 
-    # Assign numbers to letters
-    letter_to_number = {}
-    counter = 1
-    for row in range(grid_size):
-        for col in range(grid_size):
-            if grid[row][col] != '#':
-                letter = grid[row][col]
-                if letter not in letter_to_number:
-                    letter_to_number[letter] = counter
-                    counter += 1
-                grid[row][col] = f"{letter}<sup>{letter_to_number[letter]}</sup>"
-                solution_grid[row][col] = f"{letter}<sup>{letter_to_number[letter]}</sup>"
+    # Replace letters with their corresponding numbers in the coded grid
+    coded_grid = [[str(letter_to_number[c]) if c in letter_to_number else '#' for c in row] for row in grid]
 
-    return grid, solution_grid, letter_to_number, placed_words
+    return coded_grid, solution_grid, letter_to_number, placed_words
