@@ -1,4 +1,4 @@
 streamlit
+pillow
 pandas
-matplotlib
-codewords_puzzle_gen
+reportlab
