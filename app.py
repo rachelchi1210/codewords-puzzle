@@ -29,7 +29,6 @@ word_input = st.text_area("Enter words (comma separated):", value=st.session_sta
 if st.button("Generate Puzzle"):
     word_list = [word.strip().upper() for word in word_input.split(",") if word.strip()]
     coded_grid, solution_grid, letter_to_number, placed_words = generate_codewords_puzzle(word_list, grid_size)
-    
     st.session_state['coded_grid'] = coded_grid
     st.session_state['solution_grid'] = solution_grid
     st.session_state['letter_to_number'] = letter_to_number
@@ -101,4 +100,3 @@ with col3:
         for key in list(st.session_state.keys()):
             del st.session_state[key]
         st.rerun()
-
