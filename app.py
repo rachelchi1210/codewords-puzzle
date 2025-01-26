@@ -25,18 +25,19 @@ word_count = st.number_input("Number of Words:", min_value=1, max_value=grid_siz
 
 # Generate random words button
 if st.button("Generate Random Words"):
-    word_count = st.session_state.get('word_count', 10)  # Get user input count
+    word_count = int(word_count)  # Ensure it's treated as an integer
 
     # Get exact number of words without extra entries
     random_words = get_random_words(word_count)
-    
-    # Convert list to a properly formatted string with no extra spaces or empty words
-    clean_words = ", ".join(random_words[:word_count])  # Ensure exact count
 
-    # Store only selected words
-    st.session_state['current_word_input'] = clean_words
+    # Correctly limit to the requested number of words
+    selected_words = random_words[:word_count]  # Ensure exact count
+
+    # Convert list to formatted string without unnecessary spaces or commas
+    st.session_state['current_word_input'] = ", ".join(selected_words)
 
     st.rerun()
+
 
 
 # Word input section
