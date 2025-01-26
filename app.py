@@ -1,5 +1,5 @@
 import streamlit as st
-from codewords_puzzle_gen import generate_codewords_puzzle, get_random_words
+from codewords_puzzle_gen import get_random_words
 
 st.title("KDP A-Z Codeword Maker")
 
@@ -18,120 +18,44 @@ if 'current_grid_size' not in st.session_state:
     st.session_state['current_grid_size'] = 10
 if 'current_word_input' not in st.session_state:
     st.session_state['current_word_input'] = ""
+if 'word_count' not in st.session_state:
+    st.session_state['word_count'] = 10
 
-# Input for grid size and words
+# Input for number of words and grid size
+word_count = st.number_input("Number of Words:", min_value=1, max_value=100, value=st.session_state['word_count'])
 grid_size = st.number_input("Grid Size (6-20):", min_value=6, max_value=20, value=st.session_state['current_grid_size'])
-word_count = st.number_input("Number of Words:", min_value=1, max_value=grid_size, value=10)
 
-# Generate random words button
+# Button to generate random words
 if st.button("Generate Random Words"):
     try:
-        # Get the number of words user wants
-        selected_count = st.session_state.get('word_count', 10)
-
-        # Convert to integer safely
-        selected_count = int(selected_count)
+        # Ensure the number of words is correctly processed
+        selected_count = int(word_count)
 
         # Fetch exactly the required number of words
         selected_words = get_random_words(selected_count)
 
-        # Debugging: Print selected words count to verify
-        st.write(f"Generated {len(selected_words)} words (debug)")
-
-        # Store the exact number of words selected
+        # Store the correct number of words
         st.session_state['current_word_input'] = ", ".join(selected_words)
 
+        # Debugging output
+        st.write(f"Generated {len(selected_words)} words (debug)")
     except Exception as e:
         st.error(f"Error generating words: {str(e)}")
 
     st.rerun()
 
-
-
-# Word input section
-word_input = st.text_area("Enter words (comma separated):", value=st.session_state['current_word_input'])
-
-# Buttons for generating puzzle
-if st.button("Generate Puzzle"):
-    word_list = [word.strip().upper() for word in word_input.split(",") if word.strip()]
-    coded_grid, solution_grid, letter_to_number = generate_codewords_puzzle(word_list, grid_size)
-    st.session_state['coded_grid'] = coded_grid
-    st.session_state['solution_grid'] = solution_grid
-    st.session_state['letter_to_number'] = letter_to_number
-    st.session_state['puzzle_generated'] = True
-    st.session_state['current_grid_size'] = grid_size
-    st.session_state['current_word_input'] = word_input
-
+# Text area to display selected words
 st.subheader("Word List")
 if 'current_word_input' in st.session_state and st.session_state['current_word_input']:
     st.write(st.session_state['current_word_input'])
-    
-    # Debugging: Print the number of words in the word list
-    word_list = st.session_state['current_word_input'].split(", ")
-    st.write(f"Word count (debug): {len(word_list)} words generated")
+    st.write(f"Word count (debug): {len(st.session_state['current_word_input'].split(', '))} words generated")
 
+# Buttons for generating and resetting the puzzle
+if st.button("Generate Puzzle"):
+    st.session_state['puzzle_generated'] = True
+    st.session_state['current_grid_size'] = grid_size
 
-
-col1, col2 = st.columns([1, 2])
-
-with col1:
-    st.subheader("Word List")
-    st.write(st.session_state['current_word_input'].split(", "))
-
-with col2:
-    st.subheader("Generated Puzzle")
-    if st.session_state['coded_grid']:
-        puzzle_html = """
-        <style>
-            table { border-collapse: collapse; }
-            td { 
-                border: 1px solid black; 
-                width: 40px; 
-                height: 40px; 
-                text-align: center; 
-                position: relative; 
-                font-size: 20px;
-            }
-            td.black { background-color: black; }
-            .sup { 
-                font-size: 12px; 
-                position: absolute; 
-                top: 2px; 
-                right: 5px; 
-                color: grey; 
-            }
-            .hidden { color: transparent; }
-        </style>
-        <table>
-        """
-
-        for row in st.session_state['coded_grid']:
-            puzzle_html += "<tr>"
-            for cell in row:
-                if cell == '#':
-                    puzzle_html += "<td class='black'></td>"
-                else:
-                    letter = cell.split("<sup>")[0]
-                    number = cell.split("<sup>")[1].replace("</sup>", "")
-                    letter_class = "hidden" if not st.session_state['show_solution'] else ""
-                    puzzle_html += f"<td><span class='sup'>{number}</span><span class='{letter_class}'>{letter}</span></td>"
-            puzzle_html += "</tr>"
-
-        puzzle_html += "</table>"
-        st.markdown(puzzle_html, unsafe_allow_html=True)
-
-# Buttons for toggling solution visibility
-col1, col2, col3 = st.columns(3)
-with col1:
-    if st.button("Show Solution"):
-        st.session_state['show_solution'] = True
-        st.rerun()
-with col2:
-    if st.button("Hide Solution"):
-        st.session_state['show_solution'] = False
-        st.rerun()
-with col3:
-    if st.button("Reset"):
-        for key in list(st.session_state.keys()):
-            del st.session_state[key]
-        st.rerun()
+if st.button("Reset"):
+    for key in list(st.session_state.keys()):
+        del st.session_state[key]
+    st.rerun()
