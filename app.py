@@ -20,7 +20,7 @@ if 'current_word_input' not in st.session_state:
     st.session_state['current_word_input'] = ""
 
 # Input for grid size and words
-grid_size = st.number_input("Grid Size (10-20):", min_value=10, max_value=20, value=st.session_state['current_grid_size'])
+grid_size = st.number_input("Grid Size (10-20):", min_value=6, max_value=20, value=st.session_state['current_grid_size'])
 word_input = st.text_area("Enter words (comma separated):", value=st.session_state['current_word_input'])
 
 # Buttons for generating puzzle
@@ -97,4 +97,3 @@ with col3:
         for key in list(st.session_state.keys()):
             del st.session_state[key]
         st.rerun()
-
