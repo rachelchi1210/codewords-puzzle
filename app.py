@@ -79,8 +79,11 @@ with col2:
                 if cell == '#':
                     puzzle_html += "<td class='black'></td>"
                 else:
-                    letter = cell.split("<sup>")[0]
-                    number = cell.split("<sup>")[1].replace("</sup>", "")
+                    if "<sup>" in cell:
+    letter, number = cell.split("<sup>")
+    number = number.replace("</sup>", "")
+else:
+    letter, number = cell, ""
                     letter_class = "hidden" if not st.session_state['show_solution'] else ""
                     puzzle_html += f"<td><span class='sup'>{number}</span><span class='{letter_class}'>{letter}</span></td>"
             puzzle_html += "</tr>"
