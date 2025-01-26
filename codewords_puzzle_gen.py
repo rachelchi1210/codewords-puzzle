@@ -22,13 +22,11 @@ def get_random_words(count):
     # Remove duplicates and empty entries
     unique_words = list(set(filter(None, words)))
 
-    # Ensure we only return exactly 'count' words
-    selected_words = random.sample(unique_words, min(count, len(unique_words)))
-
-    # Debugging: Print out how many words were selected
-    print(f"Selected {len(selected_words)} words for the puzzle.")
-
-    return selected_words
+    # Return exactly the requested number of words
+    if len(unique_words) >= count:
+        return random.sample(unique_words, count)
+    else:
+        return unique_words  # If not enough words, return all available
 
 
 
