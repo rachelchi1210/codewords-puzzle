@@ -28,7 +28,7 @@ if 'current_word_input' not in st.session_state:
 grid_size = st.number_input("Grid Size (6-30):", min_value=6, max_value=30, value=st.session_state['current_grid_size'])
 word_input = st.text_area("Enter words (comma separated):", value=st.session_state['current_word_input'])
 
-# Generate puzzle when button is clicked
+# Buttons for generating puzzle
 if st.button("Generate Puzzle"):
     word_list = [word.strip().upper() for word in word_input.split(",") if word.strip()]
     coded_grid, solution_grid, letter_to_number, placed_words = generate_codewords_puzzle(word_list, grid_size)
@@ -80,10 +80,11 @@ with col2:
                     puzzle_html += "<td class='black'></td>"
                 else:
                     if "<sup>" in cell:
-    letter, number = cell.split("<sup>")
-    number = number.replace("</sup>", "")
-else:
-    letter, number = cell, ""
+                        letter, number = cell.split("<sup>")
+                        number = number.replace("</sup>", "")
+                    else:
+                        letter, number = cell, ""
+
                     letter_class = "hidden" if not st.session_state['show_solution'] else ""
                     puzzle_html += f"<td><span class='sup'>{number}</span><span class='{letter_class}'>{letter}</span></td>"
             puzzle_html += "</tr>"
